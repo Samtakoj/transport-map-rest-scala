@@ -7,6 +7,7 @@ import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
 import akka.stream.{ActorMaterializer, Materializer}
 import com.typesafe.config.{Config, ConfigFactory}
+import io.github.lhotari.akka.http.health.HealthEndpoint
 
 import scala.concurrent.ExecutionContextExecutor
 import scala.io.StdIn
@@ -23,6 +24,8 @@ trait Server {
   val logger: LoggingAdapter
 }
 
+
+
 object RestServer extends App with Server {
   override implicit val system = ActorSystem()
   override implicit def executor = system.dispatcher
@@ -35,7 +38,8 @@ object RestServer extends App with Server {
     get {
       complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>Test implementation</h1>"))
     }
-  }
+  } ~
+    HealthEndpoint.createDefaultHealthRoute()
 
   val interface = config.getString("http.interface")
   val port = config.getInt("http.port")
