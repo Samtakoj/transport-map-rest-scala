@@ -6,15 +6,14 @@ import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import com.transport.map.rest.status.StatusType._
-import spray.json._
-import spray.json.DefaultJsonProtocol
+import spray.json.{CollectionFormats, DefaultJsonProtocol, _}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * Created by artsiom.chuiko on 10/02/2017.
   */
-case class Status(name: String, version: String, location: String, status: String, dependencies: List[Status])
+case class Status(name: String, version: String, location: String, status: String, dependencies: List[Status] = List.empty)
 
 sealed trait StatusType
 
@@ -24,8 +23,18 @@ object StatusType {
   case object Red extends StatusType
 }
 
-object StatusJsonProtocol extends DefaultJsonProtocol with CollectionFormats{
-  implicit val statusFormat = lazyFormat(jsonFormat5(Status))
+object StatusJsonProtocol extends DefaultJsonProtocol with CollectionFormats {
+  implicit object StatusJsonFormat extends RootJsonFormat[Status] {
+    override def write(obj: Status): JsValue = JsObject(
+      "name" -> JsString(obj.name),
+      "version" -> JsString(obj.version),
+      "location" -> JsString(obj.location),
+      "status" -> JsString(obj.status),
+      "dependencies" -> JsArray(obj.dependencies.map(_.toJson).toVector)
+    )
+
+    override def read(json: JsValue): Status = ???
+  }
 }
 
 sealed trait StatusInfoAware {
@@ -75,15 +84,15 @@ trait StatusEndpoint extends StatusInfoAware {
       case true => Red
       case false => Green
     }
-    Status(name, version, location, status.getClass.getName, dependencies)
+    Status(name, version, location, status.getClass.getSimpleName, dependencies)
   }
 }
 
 object StatusEndpointRouterFactory {
-  def create(name: String, version: String, location: String)(implicit executor: ExecutionContext) = new StatusEndpoint {
-    override protected def createComponents() = List.empty[StatusChecker]
-    override protected def location = location
-    override protected def name = name
-    override protected def version = version
+  def create(nameStr: String, versionStr: String, locationStr: String, checkers: List[StatusChecker] = List.empty)(implicit executor: ExecutionContext) = new StatusEndpoint {
+    override protected def createComponents() = checkers
+    override protected def location = locationStr
+    override protected def name = nameStr
+    override protected def version = versionStr
   }.createStatusRoute()
 }
