@@ -13,14 +13,16 @@ import scala.concurrent.{ExecutionContext, Future}
 /**
   * Created by artsiom.chuiko on 10/02/2017.
   */
-case class Status(name: String, version: String, location: String, status: String, dependencies: List[Status] = List.empty)
+case class Status(name: String, version: String, location: String, status: StatusType, dependencies: List[Status] = List.empty)
 
-sealed trait StatusType
+sealed trait StatusType {
+  def name: String
+}
 
 object StatusType {
-  case object Green extends StatusType
-  case object Yellow extends StatusType
-  case object Red extends StatusType
+  case object Green extends StatusType { override def name = "Green" }
+  case object Yellow extends StatusType { override def name = "Yellow" }
+  case object Red extends StatusType { override def name = "Red" }
 }
 
 object StatusJsonProtocol extends DefaultJsonProtocol with CollectionFormats {
@@ -29,7 +31,7 @@ object StatusJsonProtocol extends DefaultJsonProtocol with CollectionFormats {
       "name" -> JsString(obj.name),
       "version" -> JsString(obj.version),
       "location" -> JsString(obj.location),
-      "status" -> JsString(obj.status),
+      "status" -> JsString(obj.status.name),
       "dependencies" -> JsArray(obj.dependencies.map(_.toJson).toVector)
     )
 
@@ -84,7 +86,7 @@ trait StatusEndpoint extends StatusInfoAware {
       case true => Red
       case false => Green
     }
-    Status(name, version, location, status.getClass.getSimpleName, dependencies)
+    Status(name, version, location, status, dependencies)
   }
 }
 
