@@ -6,6 +6,7 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
 import akka.stream.{ActorMaterializer, Materializer}
+import com.transport.map.rest.status.StatusType.Green
 import com.transport.map.rest.status.{Status, StatusChecker, StatusEndpointRouterFactory}
 import com.typesafe.config.{Config, ConfigFactory}
 import io.github.lhotari.akka.http.health.HealthEndpoint
@@ -45,7 +46,7 @@ object RestServer extends App with Server {
   } ~
     HealthEndpoint.createDefaultHealthRoute() ~
     StatusEndpointRouterFactory.create("Transport-Map-Rest", "0.0.1", s"http://$interface:$port/", List(new StatusChecker {
-      override def check() = Status("TestDatabaseComponent1", "0.0.1", "jdbc:sqlserver://CHESQL040;database=Test", "Green", List.empty)
+      override def check() = Status("TestDatabaseComponent1", "0.0.1", "jdbc:sqlserver://CHESQL040;database=Test", Green, List.empty)
     }))
 
   val binding = Http().bindAndHandle(route, interface, port)
