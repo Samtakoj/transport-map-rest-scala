@@ -26,8 +26,6 @@ trait Server {
   val logger: LoggingAdapter
 }
 
-
-
 object RestServer extends App with Server {
   override implicit val system = ActorSystem()
   override implicit def executor = system.dispatcher
