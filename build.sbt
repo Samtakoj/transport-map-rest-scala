@@ -7,5 +7,6 @@ scalaVersion := "2.12.1"
 resolvers += Resolver.bintrayRepo("lhotari", "releases")
 
 libraryDependencies += "com.typesafe.akka" %% "akka-http" % "10.0.3"
+libraryDependencies += "com.typesafe.akka" %% "akka-http-spray-json" % "10.0.3"
 libraryDependencies += "io.github.lhotari" %% "akka-http-health" % "1.0.2"
 libraryDependencies += "io.spray" %% "spray-json" % "1.3.3"
