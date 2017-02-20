@@ -6,6 +6,7 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
 import akka.stream.{ActorMaterializer, Materializer}
+import com.transport.map.rest.schedule.TransportApi
 import com.transport.map.rest.status.StatusType.Green
 import com.transport.map.rest.status.{Status, StatusChecker, StatusEndpointRouterFactory}
 import com.typesafe.config.{Config, ConfigFactory}
@@ -17,7 +18,7 @@ import scala.io.StdIn
 /**
   * Created by artsiom.chuiko on 08/02/2017.
   */
-trait Server {
+trait AkkaAware {
   implicit val system: ActorSystem
   implicit def executor: ExecutionContextExecutor
   implicit val materializer: Materializer
@@ -25,8 +26,11 @@ trait Server {
   def config: Config
   val logger: LoggingAdapter
 }
+trait Server extends AkkaAware {
 
-object RestServer extends App with Server {
+}
+
+object RestServer extends App with TransportApi {
   override implicit val system = ActorSystem()
   override implicit def executor = system.dispatcher
   override implicit val materializer = ActorMaterializer()
@@ -45,7 +49,7 @@ object RestServer extends App with Server {
     HealthEndpoint.createDefaultHealthRoute() ~
     StatusEndpointRouterFactory.create("Transport-Map-Rest", "0.0.1", s"http://$interface:$port/", List(new StatusChecker {
       override def check() = Status("TestDatabaseComponent1", "0.0.1", "jdbc:sqlserver://CHESQL040;database=Test", Green, List.empty)
-    }))
+    })) ~ createStopsRoute()
 
   val binding = Http().bindAndHandle(route, interface, port)
   println(s"Rest server online at http://$interface:$port/\nPress RETURN to stop...")
