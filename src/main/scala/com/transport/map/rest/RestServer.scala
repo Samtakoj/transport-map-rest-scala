@@ -49,7 +49,10 @@ object RestServer extends App with TransportApi {
     HealthEndpoint.createDefaultHealthRoute() ~
     StatusEndpointRouterFactory.create("Transport-Map-Rest", "0.0.1", s"http://$interface:$port/", List(new StatusChecker {
       override def check() = Status("TestDatabaseComponent1", "0.0.1", "jdbc:sqlserver://CHESQL040;database=Test", Green, List.empty)
-    })) ~ createStopsRoute()
+    })) ~
+    createStopsRoute() ~
+    createRoutesRoute() ~
+    createTimesRoute()
 
   val binding = Http().bindAndHandle(route, interface, port)
   println(s"Rest server online at http://$interface:$port/\nPress RETURN to stop...")
