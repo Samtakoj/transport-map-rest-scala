@@ -12,10 +12,10 @@ import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.scaladsl.{Flow, Sink, Source}
 import com.transport.map.rest.AkkaAware
-
-import kantan.csv.ops._     // kantan.csv syntax
+import kantan.csv.ops._
 import kantan.csv.generic._
 
+import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, Future}
 
 /**
@@ -80,12 +80,10 @@ trait TransportApi extends AkkaAware{
       fetchTimes()
     }
   }
+}
 
-  //ID;City;Area;Street;Name;Info;Lng;Lat;Stops;StopNum
-  case class Stops(id: Int, city: Int, area: Int, street: Option[String],
-                   name: Option[String], info: Option[String], lng: Option[Long], lat: Option[Long],
-                   stops: Option[String], stopNum: String)
-
-  //230066;0;0;0;?;;0;0;;s230066 => Success(Stops(230066,0,0,0,Some(?),None,Some(0),Some(0),))
-  //271133;0;0;0;?;;0;0;;s271133 => Success(Stops(271133,0,0,0,Some(?),None,Some(0),Some(0),))
+case class Stops(id: Int, city: Int, area: Int, street: Option[String],
+                 name: Option[String], info: Option[String], lng: Option[Long], lat: Option[Long],
+                 stops: Option[String]) {
+  val linked = scala.collection.mutable.ListBuffer.empty[Stops]
 }
