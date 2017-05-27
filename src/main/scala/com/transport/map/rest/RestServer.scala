@@ -56,6 +56,6 @@ object RestServer extends App with TransportApi {
 
   val binding = Http().bindAndHandle(route, interface, port)
   println(s"Rest server online at http://$interface:$port/\nPress RETURN to stop...")
-  StdIn.readLine()
-  binding.flatMap(_.unbind()).onComplete(_ => system.terminate())
+//  StdIn.readLine()
+//  binding.flatMap(_.unbind()).onComplete(_ => system.terminate())
 }
