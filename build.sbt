@@ -1,3 +1,4 @@
+enablePlugins(JavaAppPackaging)
 name := "transport-map-rest-scala"
 
 version := "1.0"
