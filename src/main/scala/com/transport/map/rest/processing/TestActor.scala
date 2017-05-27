@@ -19,7 +19,7 @@ class TestActor extends Actor {
   }
 }
 
-object TestApp extends App {
+object TestApp {
   val content = Source.fromFile("src/main/resources/stops.csv", "UTF-8").mkString
   val parsed = content.asCsvReader[Stops](';', true).filter {
     case Success(_) => true
@@ -43,8 +43,11 @@ object TestApp extends App {
     }
   }
 
+  println(s"Size of stops is ${stops.length}")
+
   val ids = ListBuffer.empty[Int]
   val route = ListBuffer.empty[Stops]
+
   def printStops(stop: Stops): Unit = {
     println(stop)
     route += stop
@@ -53,7 +56,7 @@ object TestApp extends App {
   }
 
 //  stops.foreach { stop => println(stop.linked)}
-  val stop = stops.find(s => s.id == 14694)
+  val stop = stops.find(s => s.id == 14808)
   stop match {
     case Some(s) => printStops(s)
     case None => ;
@@ -63,7 +66,7 @@ object TestApp extends App {
   val map = route.groupBy(s => s.id)
   println(s"size of map is ${map.size}")
   map.foreach { entry =>
-    if (entry._2.length > 1) {
+    if (entry._2.length > 2) {
       println(entry._2)
     }
   }
